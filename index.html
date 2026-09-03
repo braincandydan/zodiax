@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZODIAX — Homophonic Cipher Lab</title>
+<meta name="description" content="Turn any message into a Zodiac-killer-style homophonic substitution cipher, then see exactly why it worked — an interactive lesson in classical cryptography.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=Special+Elite&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <div class="crosshair" aria-hidden="true">
+      <svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17"/><line x1="20" y1="0" x2="20" y2="40"/><line x1="0" y1="20" x2="40" y2="20"/></svg>
+    </div>
+    <div>
+      <h1>ZODIAX</h1>
+      <p class="tagline">A homophonic cipher lab — write a message, watch it turn into symbols, then learn exactly why the trick works.</p>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel" id="encoder">
+    <h2><span class="step">01</span> Write your message</h2>
+    <p class="hint">Anything you type. Try a sentence with a lot of repeated letters (like <em>E</em>, <em>T</em>, or <em>A</em>) — it's the most revealing.</p>
+    <textarea id="plaintext" maxlength="500" placeholder="Type your message here…" rows="3">MEET ME AT THE OLD PIER WHEN THE SUN SETS TONIGHT</textarea>
+    <div class="controls">
+      <label class="switch">
+        <input type="checkbox" id="hideSpaces">
+        <span>Run letters together (authentic mode)</span>
+      </label>
+      <label class="switch">
+        <input type="checkbox" id="revealKey">
+        <span>Reveal the key under each symbol</span>
+      </label>
+      <button id="newKeyBtn" class="btn btn-ghost" type="button">🔑 Generate a new cipher key</button>
+    </div>
+  </section>
+
+  <section class="panel" id="output-panel">
+    <h2><span class="step">02</span> Your cipher</h2>
+    <div id="cipherOutput" class="cipher-grid" aria-live="polite"></div>
+    <p class="hint small">Each symbol below a glyph (when revealed) is the letter it stands for. Notice how the <em>same letter</em> gets drawn as <em>different symbols</em> each time it appears — that's the whole trick.</p>
+  </section>
+
+  <section class="panel" id="explain-panel">
+    <h2><span class="step">03</span> Why this actually works</h2>
+
+    <div class="explain-grid">
+      <div class="explain-card">
+        <h3>The problem with a simple substitution</h3>
+        <p>If you just swap each letter for one fixed symbol (A→△, B→□, …), you've made a puzzle, not a secure cipher. English text has a very predictable letter-frequency fingerprint — <strong>E</strong> shows up roughly 12% of the time, <strong>T</strong> and <strong>A</strong> close behind, while <strong>J</strong>, <strong>Q</strong>, <strong>X</strong>, and <strong>Z</strong> barely appear at all. Count how often each symbol shows up in the ciphertext, match the most common one to E, and the whole message unravels in minutes.</p>
+      </div>
+      <div class="explain-card">
+        <h3>The homophonic fix</h3>
+        <p>The trick — the one behind the Zodiac's ciphers — is to give common letters <em>several</em> interchangeable symbols instead of one, and rare letters just a single symbol. Below, <strong>E</strong> is assigned <span id="countE">–</span> different glyphs and <strong>Z</strong> gets only <span id="countZ">–</span>. Every time you type an E, the encoder randomly picks one of its glyphs. That spreads E's true frequency out across several symbols, so no single symbol stands out anymore — frequency analysis on symbols alone stops working.</p>
+      </div>
+      <div class="explain-card">
+        <h3>The real Zodiac ciphers</h3>
+        <p>In 1969, the Zodiac Killer mailed newspapers a 408-symbol cryptogram (now called Z408) split across three letters, split into pieces, split into a 63-symbol homophonic substitution alphabet very similar in spirit to what this page just built for you. It was cracked within a week by a schoolteacher, Donald Harden, and his wife Bettye — largely by guessing the word "KILL" would appear and working outward from there. A second, harder cipher (Z340) resisted every attempt for 51 years until a team of independent codebreakers — David Oranchak, Sam Blake, and Jarl Van Eycke — cracked it in December 2020 using custom software that tested thousands of symbol-transposition patterns automatically. A third cipher, Z13, remains unsolved to this day.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Frequency, before and after</h3>
+    <p class="hint">Left: how often each <em>letter</em> appears in your plaintext. Right: how often each <em>symbol</em> appears in your ciphertext. Watch the right chart flatten out as your message gets longer — that flattening is the whole point of a homophonic cipher.</p>
+    <div class="charts">
+      <div class="chart-box">
+        <h4>Plaintext letter frequency</h4>
+        <div id="plainChart" class="chart"></div>
+      </div>
+      <div class="chart-box">
+        <h4>Ciphertext symbol frequency</h4>
+        <div id="cipherChart" class="chart"></div>
+      </div>
+    </div>
+
+    <h3 class="sub">The current key</h3>
+    <p class="hint">This is the secret both sides would need to share. Every letter maps to a small pool of symbols — the more common the letter in English, the bigger its pool.</p>
+    <div id="keyTable" class="key-table"></div>
+  </section>
+
+  <section class="panel" id="theory-panel">
+    <h2><span class="step">04</span> The bigger picture: how ciphers evolve</h2>
+    <div class="explain-grid three">
+      <div class="explain-card">
+        <h4>Caesar cipher</h4>
+        <p>Shift every letter by a fixed amount (A→D, B→E, …). Trivial to break — there are only 25 possible shifts to try.</p>
+      </div>
+      <div class="explain-card">
+        <h4>Monoalphabetic substitution</h4>
+        <p>Any fixed letter-to-symbol mapping. Harder — millions of possible keys — but frequency analysis cracks it almost every time, as shown above.</p>
+      </div>
+      <div class="explain-card">
+        <h4>Homophonic substitution</h4>
+        <p>What this page does. Multiple symbols per letter, weighted by frequency, flattens the statistical fingerprint. Much stronger, but patterns in word length, symbol repetition, and context can still leak information.</p>
+      </div>
+      <div class="explain-card">
+        <h4>Polyalphabetic (Vigenère)</h4>
+        <p>Uses a repeating keyword to shift letters differently depending on position, so the same plaintext letter maps to different ciphertext letters throughout — considered unbreakable for centuries until Kasiski and Babbage found ways to recover the keyword length.</p>
+      </div>
+      <div class="explain-card">
+        <h4>Modern cryptography</h4>
+        <p>Today's encryption (AES, RSA, elliptic-curve) doesn't hide letter patterns by hand — it relies on mathematical problems (like factoring huge numbers) that are computationally infeasible to reverse without the key, even with every computer on Earth.</p>
+      </div>
+      <div class="explain-card">
+        <h4>Try it yourself</h4>
+        <p>Turn on "Reveal the key" above, cover the letters with your hand, and try to decode your own message using only the symbol shapes and repetition. It's a surprisingly good feel for what codebreakers actually do.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Built as an interactive lesson in classical cryptography. All ciphers are generated fresh in your browser — nothing you type is sent anywhere.</p>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
