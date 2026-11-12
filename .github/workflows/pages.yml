@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - claude/zodiac-cipher-encoder-xrery0
   workflow_dispatch:
 
 permissions:
